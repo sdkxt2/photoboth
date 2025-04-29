@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customize Photos - BOTOBOTO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="customize.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bytesized&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="customize-container">
+        <div class="preview-section">
+            <div class="photos-preview" id="photosPreview">
+                <!-- Photos will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <div class="customization-section">
+            <div class="section-title">Warna frame</div>
+            <div class="color-options">
+                <button class="color-btn rainbow" data-color="rainbow"></button>
+                <button class="color-btn white" data-color="white"></button>
+                <button class="color-btn black" data-color="black"></button>
+                <button class="color-btn pink-light" data-color="pink-light"></button>
+                <button class="color-btn pink" data-color="pink"></button>
+                <button class="color-btn blue-light" data-color="blue-light"></button>
+                <button class="color-btn purple" data-color="purple"></button>
+                <button class="color-btn yellow" data-color="yellow"></button>
+                <button class="color-btn peach" data-color="peach"></button>
+                <button class="color-btn green" data-color="green"></button>
+                <button class="color-btn gray" data-color="gray"></button>
+                <button class="color-btn brown-dark" data-color="brown-dark"></button>
+                <button class="color-btn blue-dark" data-color="blue-dark"></button>
+                <button class="color-btn red-dark" data-color="red-dark"></button>
+                <button class="color-btn pink-dark" data-color="pink-dark"></button>
+                <button class="color-btn brown" data-color="brown"></button>
+                <button class="color-btn pattern" data-color="pattern"></button>
+                <button class="color-btn rainbow-pastel" data-color="rainbow-pastel"></button>
+                <button class="color-btn silver" data-color="silver"></button>
+                <button class="color-btn glitter" data-color="glitter"></button>
+                <button class="color-btn holographic" data-color="holographic"></button>
+                <button class="color-btn metallic" data-color="metallic"></button>
+            </div>
+
+            <div class="section-title">Stiker</div>
+            <div class="sticker-options">
+                <button class="sticker-btn" data-sticker="none">
+                    <img src="stickers/none.png" alt="No sticker">
+                </button>
+                <button class="sticker-btn" data-sticker="stars">
+                    <img src="stickers/stars.png" alt="Stars">
+                </button>
+                <button class="sticker-btn" data-sticker="hearts">
+                    <img src="stickers/hearts.png" alt="Hearts">
+                </button>
+                <button class="sticker-btn" data-sticker="heart-white">
+                    <img src="stickers/heart-white.png" alt="White heart">
+                </button>
+                <button class="sticker-btn" data-sticker="bow">
+                    <img src="stickers/bow.png" alt="Bow">
+                </button>
+                <button class="sticker-btn" data-sticker="rainbow">
+                    <img src="stickers/rainbow.png" alt="Rainbow">
+                </button>
+                <button class="sticker-btn" data-sticker="star">
+                    <img src="stickers/star.png" alt="Star">
+                </button>
+                <button class="sticker-btn" data-sticker="shooting-star">
+                    <img src="stickers/shooting-star.png" alt="Shooting star">
+                </button>
+                <button class="sticker-btn" data-sticker="butterfly">
+                    <img src="stickers/butterfly.png" alt="Butterfly">
+                </button>
+                <button class="sticker-btn" data-sticker="character">
+                    <img src="stickers/character.png" alt="Character">
+                </button>
+                <button class="sticker-btn" data-sticker="text">
+                    <img src="stickers/text.png" alt="Text">
+                </button>
+                <button class="sticker-btn" data-sticker="cloud">
+                    <img src="stickers/cloud.png" alt="Cloud">
+                </button>
+                <button class="sticker-btn" data-sticker="bow-blue">
+                    <img src="stickers/bow-blue.png" alt="Blue bow">
+                </button>
+                <button class="sticker-btn" data-sticker="flower">
+                    <img src="stickers/flower.png" alt="Flower">
+                </button>
+            </div>
+
+            <div class="action-buttons">
+                <button id="unduhBtn" class="unduh-btn">Unduh</button>
+                <button id="retakeBtn" class="retake-btn">Ambil Ulang</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get selected photos from localStorage
+        const selectedPhotos = JSON.parse(localStorage.getItem('selectedPhotos')) || [];
+        const photosPreview = document.getElementById('photosPreview');
+
+        // Display selected photos
+        function displaySelectedPhotos() {
+            photosPreview.innerHTML = '';
+            selectedPhotos.forEach((photoData, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'preview-photo';
+                photoDiv.innerHTML = `
+                    <img src="${photoData.url}" alt="Selected photo ${index + 1}">
+                    <div class="sticker-container"></div>
+                `;
+                photosPreview.appendChild(photoDiv);
+            });
+        }
+
+        // Handle frame color selection
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove selected class from all buttons
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+
+                // Remove all previous frame color classes
+                const frameClasses = Array.from(photosPreview.classList)
+                    .filter(className => className.startsWith('frame-'));
+                photosPreview.classList.remove(...frameClasses);
+
+                // Add new frame color class
+                const color = btn.dataset.color;
+                photosPreview.classList.add(`frame-${color}`);
+            });
+        });
+
+        // Handle sticker selection and placement
+        let selectedSticker = null;
+        let activePhoto = null;
+
+        document.querySelectorAll('.sticker-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.sticker-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedSticker = btn.dataset.sticker;
+            });
+        });
+
+        // Add sticker on photo click
+        function setupPhotoClickListeners() {
+            document.querySelectorAll('.preview-photo').forEach(photo => {
+                photo.addEventListener('click', (e) => {
+                    if (!selectedSticker || selectedSticker === 'none') return;
+
+                    const rect = photo.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const sticker = document.createElement('div');
+                    sticker.className = 'sticker';
+                    sticker.style.left = `${x}px`;
+                    sticker.style.top = `${y}px`;
+                    sticker.innerHTML = `
+                        <img src="stickers/${selectedSticker}.png" alt="${selectedSticker}">
+                        <button class="remove-sticker">×</button>
+                    `;
+
+                    const stickerContainer = photo.querySelector('.sticker-container');
+                    stickerContainer.appendChild(sticker);
+
+                    // Make sticker draggable
+                    makeStickerDraggable(sticker);
+
+                    // Add remove button functionality
+                    sticker.querySelector('.remove-sticker').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        sticker.remove();
+                    });
+                });
+            });
+        }
+
+        // Make sticker draggable
+        function makeStickerDraggable(sticker) {
+            let pos = { x: 0, y: 0 };
+            let isDragging = false;
+
+            sticker.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                pos = {
+                    x: e.clientX - sticker.offsetLeft,
+                    y: e.clientY - sticker.offsetTop
+                };
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const container = sticker.closest('.preview-photo');
+                const rect = container.getBoundingClientRect();
+                
+                let newX = e.clientX - pos.x;
+                let newY = e.clientY - pos.y;
+
+                // Keep sticker within photo boundaries
+                newX = Math.max(0, Math.min(newX, rect.width - sticker.offsetWidth));
+                newY = Math.max(0, Math.min(newY, rect.height - sticker.offsetHeight));
+
+                sticker.style.left = `${newX}px`;
+                sticker.style.top = `${newY}px`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+        }
+
+        // Handle download
+        document.getElementById('unduhBtn').addEventListener('click', function() {
+            // Get the preview container
+            const previewContainer = document.querySelector('.photos-preview');
+            
+            // Create a canvas element
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match the preview container
+            canvas.width = previewContainer.offsetWidth;
+            canvas.height = previewContainer.offsetHeight;
+            
+            // Fill the canvas with the background color/image
+            ctx.fillStyle = window.getComputedStyle(previewContainer).backgroundColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw each photo and its stickers
+            const photos = previewContainer.querySelectorAll('.preview-photo');
+            photos.forEach(photo => {
+                const img = photo.querySelector('img');
+                const rect = photo.getBoundingClientRect();
+                const containerRect = previewContainer.getBoundingClientRect();
+                
+                // Draw the photo
+                ctx.drawImage(img, 
+                    rect.left - containerRect.left, 
+                    rect.top - containerRect.top, 
+                    rect.width, 
+                    rect.height
+                );
+                
+                // Draw stickers
+                const stickers = photo.querySelectorAll('.sticker');
+                stickers.forEach(sticker => {
+                    const stickerImg = sticker.querySelector('img');
+                    const stickerRect = sticker.getBoundingClientRect();
+                    
+                    ctx.drawImage(stickerImg, 
+                        stickerRect.left - containerRect.left, 
+                        stickerRect.top - containerRect.top, 
+                        stickerRect.width, 
+                        stickerRect.height
+                    );
+                });
+            });
+            
+            // Convert canvas to image and trigger download
+            const link = document.createElement('a');
+            link.download = 'photo-booth-edit.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // Handle retake
+        document.getElementById('retakeBtn').addEventListener('click', () => {
+            window.location.href = 'photo-take.html';
+        });
+
+        // Initialize
+        displaySelectedPhotos();
+        setupPhotoClickListeners();
+
+        // Select default frame color (white)
+        document.querySelector('.color-btn[data-color="white"]').click();
+    </script>
+</body>
+</html> 

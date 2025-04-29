@@ -1,0 +1,198 @@
+/* Base styles */
+body {
+    font-family: 'Bytesized', sans-serif;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* Grid container */
+.grid-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    animation: slideIn 0.5s ease-out;
+}
+
+/* Grid title */
+.grid-title {
+    color: #1a1a1a;
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Selection info */
+.selection-info {
+    color: #4a5568;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.125rem;
+}
+
+/* Photo grid */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 2rem;
+}
+
+/* Grid item */
+.grid-item {
+    position: relative;
+    aspect-ratio: 4/3;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.grid-item:hover .selection-overlay {
+    opacity: 1;
+}
+
+.grid-item.selected .selection-overlay {
+    opacity: 1;
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.grid-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.grid-item.disabled:hover .selection-overlay {
+    opacity: 0;
+}
+
+/* Photo container */
+.photo-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.photo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.selection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.selection-number {
+    width: 30px;
+    height: 30px;
+    background: #3b82f6;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-btn,
+.next-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-btn {
+    background: #f8fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.back-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.next-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+}
+
+.next-btn:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-2px);
+}
+
+.next-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+
+/* Animation keyframes */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} 

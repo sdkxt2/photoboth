@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Grid - BOTOBOTO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="grid.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bytesized&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="grid-container">
+        <h1 class="grid-title">Select Your Photos</h1>
+        <p class="selection-info">Select up to 4 photos to continue</p>
+        
+        <div class="photo-grid" id="photoGrid"></div>
+        
+        <div class="controls">
+            <button id="backBtn" class="back-btn">Back</button>
+            <button id="nextBtn" class="next-btn" disabled>Next</button>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const photoGrid = document.getElementById('photoGrid');
+        const nextBtn = document.getElementById('nextBtn');
+        const backBtn = document.getElementById('backBtn');
+        const selectionInfo = document.querySelector('.selection-info');
+
+        // Get photos from localStorage
+        const storedPhotos = JSON.parse(localStorage.getItem('capturedPhotos')) || [];
+        const photos = storedPhotos.map(photo => {
+            // Reconstruct the full data URL from the stored data
+            return `data:${photo.type};base64,${photo.data}`;
+        });
+        let selectedPhotos = [];
+
+        // Create grid items
+        function createGrid() {
+            photoGrid.innerHTML = '';
+            photos.forEach((photoUrl, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.innerHTML = `
+                    <div class="photo-container">
+                        <img src="${photoUrl}" alt="Photo ${index + 1}">
+                        <div class="selection-overlay">
+                            <div class="selection-number">${index + 1}</div>
+                        </div>
+                    </div>
+                `;
+                gridItem.addEventListener('click', () => togglePhotoSelection(index));
+                photoGrid.appendChild(gridItem);
+            });
+            updateSelectionUI();
+        }
+
+        // Toggle photo selection
+        function togglePhotoSelection(index) {
+            const gridItem = photoGrid.children[index];
+            
+            if (selectedPhotos.includes(index)) {
+                // Deselect
+                selectedPhotos = selectedPhotos.filter(i => i !== index);
+                gridItem.classList.remove('selected');
+            } else {
+                // Select if under limit
+                if (selectedPhotos.length < 4) {
+                    selectedPhotos.push(index);
+                    gridItem.classList.add('selected');
+                }
+            }
+
+            // Update UI
+            updateSelectionUI();
+        }
+
+        // Update UI based on selection
+        function updateSelectionUI() {
+            // Update selection info
+            selectionInfo.textContent = `Selected ${selectedPhotos.length}/4 photos`;
+            
+            // Enable/disable next button
+            nextBtn.disabled = selectedPhotos.length === 0;
+            
+            // Update grid items
+            Array.from(photoGrid.children).forEach((item, index) => {
+                const overlay = item.querySelector('.selection-overlay');
+                if (selectedPhotos.includes(index)) {
+                    item.classList.add('selected');
+                    const selectionNumber = selectedPhotos.indexOf(index) + 1;
+                    item.querySelector('.selection-number').textContent = selectionNumber;
+                } else {
+                    item.classList.remove('selected');
+                    item.querySelector('.selection-number').textContent = '';
+                }
+                
+                if (!selectedPhotos.includes(index) && selectedPhotos.length >= 4) {
+                    item.classList.add('disabled');
+                } else {
+                    item.classList.remove('disabled');
+                }
+            });
+        }
+
+        // Go to next page
+        function goToNextPage() {
+            if (selectedPhotos.length > 0) {
+                // Save selected photos to localStorage
+                const selectedPhotoData = selectedPhotos.map(index => ({
+                    url: photos[index],
+                    originalIndex: index
+                }));
+                localStorage.setItem('selectedPhotos', JSON.stringify(selectedPhotoData));
+                window.location.href = 'customize.html';
+            }
+        }
+
+        // Go back to photo take page
+        function goBack() {
+            window.location.href = 'photo-take.html';
+        }
+
+        // Event listeners
+        nextBtn.addEventListener('click', goToNextPage);
+        backBtn.addEventListener('click', goBack);
+
+        // Initialize grid
+        createGrid();
+    </script>
+</body>
+</html> 

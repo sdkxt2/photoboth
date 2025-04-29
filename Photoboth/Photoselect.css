@@ -1,0 +1,93 @@
+
+.pixel-text {
+    font-family: "Bytesized", sans-serif;
+    font-size: 50px;
+    letter-spacing: -2px;
+    font-weight: 400;
+    color: blue 500;
+    margin-left: 100px;
+
+
+}
+
+.card-container {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: left;
+    gap: 0.1px;
+    margin-bottom: 5px;}
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.photo-item {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.photo-item:hover {
+    transform: scale(1.05);
+    z-index: 10;
+}
+.photo-item.selected {
+    border: 3px solid blue;
+    box-shadow: 0 0 15px rgba(0,0,255,0.5);
+}
+.frame {
+    
+    border: 15px solid white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    background: #f0f0f0;
+}
+.grid-frame {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    
+}
+
+.colom{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    align-items: center;
+
+   
+}
+
+.level2{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    align-items: center;
+    max-width: 100%;
+    margin-left: 40px;
+
+}
+
+img {
+    width: 200px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-left: 80px;
+}
+
+
+.framefull{
+    width: 100%;
+    height: 100%;
+    scale: 0.8;
+}
+
+.button{
+    gap: 5px;
+}
+
+
+
+
+
+

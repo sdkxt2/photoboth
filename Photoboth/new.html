@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Booth Result - BeautyPlus Clone</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Photo Booth Result</h1>
+    </header>
+    <main>
+        <section id="controls">
+            <select id="timer">
+                <option value="0">No Timer</option>
+                <option value="3">3 Seconds</option>
+                <option value="5">5 Seconds</option>
+                <option value="10">10 Seconds</option>
+            </select>
+            <button id="take-picture">Take Picture</button>
+        </section>
+        <section id="result">
+            <h2>Your Photo Booth Results</h2>
+            <div class="photo-strip" id="photo-strip"></div>
+        </section>
+        <section id="camera">
+            <video id="video" autoplay playsinline></video>
+            <div id="progress" class="progress"></div>
+        </section>
+    </main>
+    <script src="scripts.js"></script>
+</body>
+</html>

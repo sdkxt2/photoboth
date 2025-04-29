@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Photo - BOTOBOTO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="photo-take.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bytesized&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="photo-container">
+        <h1 class="photo-title">Take Your Photo</h1>
+        
+        <div class="camera-section">
+            <!-- Camera Preview -->
+            <div class="camera-preview">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+
+            <!-- Captured Photo -->
+            <div class="captured-photo" id="capturedPhoto" style="display: none;">
+                <img id="photo" alt="Captured photo">
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button id="captureBtn" class="capture-btn">
+                    <span class="capture-icon"></span>
+                </button>
+                <button id="nextBtn" class="next-btn" style="display: none;">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- Photo Preview Gallery -->
+        <div class="photo-gallery" id="photoGallery">
+            <h2 class="gallery-title">
+                Your Photos 
+                <span class="photo-count" id="photoCount">(0/8)</span>
+            </h2>
+            <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Camera elements
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        const captureBtn = document.getElementById('captureBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const cameraPreview = document.querySelector('.camera-preview');
+        const capturedPhoto = document.getElementById('capturedPhoto');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const photoGallery = document.getElementById('photoGallery');
+
+        // Array to store captured photos
+        let capturedPhotos = [];
+
+        // Camera stream
+        let stream = null;
+
+        // Start camera
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Unable to access camera. Please ensure you have granted camera permissions.');
+            }
+        }
+
+        // Capture photo
+        function capturePhoto() {
+            try {
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Compress the image data to reduce size
+                const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                
+                // Add photo to gallery if less than 8 photos
+                if (capturedPhotos.length < 8) {
+                    capturedPhotos.push(imageData);
+                    updateGallery();
+                    
+                    // Show captured photo briefly
+                    photo.src = imageData;
+                    cameraPreview.style.display = 'none';
+                    capturedPhoto.style.display = 'block';
+                    
+                    // Return to camera preview after 1 second
+                    setTimeout(() => {
+                        cameraPreview.style.display = 'block';
+                        capturedPhoto.style.display = 'none';
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Error capturing photo:', error);
+                alert('Error capturing photo. Please try again.');
+            }
+        }
+
+        // Go to grid page
+        function goToGrid() {
+            try {
+                if (capturedPhotos.length === 8) {
+                    // Compress and process photos before storing
+                    const processedPhotos = capturedPhotos.map((photo, index) => {
+                        try {
+                            // Split the data URL to get just the base64 data
+                            const [header, base64Data] = photo.split(',');
+                            // Store with minimal metadata
+                            return {
+                                id: index + 1,
+                                data: base64Data,
+                                type: header.split(';')[0].split(':')[1]
+                            };
+                        } catch (err) {
+                            throw new Error(`Error processing photo ${index + 1}`);
+                        }
+                    });
+
+                    // Clear any existing stored photos
+                    localStorage.removeItem('capturedPhotos');
+                    
+                    // Store processed photos
+                    localStorage.setItem('capturedPhotos', JSON.stringify(processedPhotos));
+                    
+                    // Stop camera stream before redirecting
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                    
+                    // Redirect to grid page
+                    window.location.href = 'grid.html';
+                } else {
+                    alert('Please take all 8 photos before proceeding to the grid page.');
+                }
+            } catch (error) {
+                console.error('Error processing photos:', error);
+                alert('There was an error processing your photos. Please try taking them again.');
+                // Clear stored photos on error
+                localStorage.removeItem('capturedPhotos');
+                capturedPhotos = [];
+                updateGallery();
+            }
+        }
+
+        // Delete photo from gallery
+        window.deletePhoto = function(index) {
+            capturedPhotos.splice(index, 1);
+            updateGallery();
+            
+            // Hide next button if not all photos are taken
+            if (capturedPhotos.length !== 8) {
+                nextBtn.style.display = 'none';
+                nextBtn.disabled = true;
+                nextBtn.classList.remove('active');
+            }
+        }
+
+        // Update gallery display
+        function updateGallery() {
+            galleryGrid.innerHTML = '';
+            capturedPhotos.forEach((photoData, index) => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'gallery-item';
+                photoItem.innerHTML = `
+                    <img src="${photoData}" alt="Photo ${index + 1}">
+                    <button class="delete-btn" onclick="deletePhoto(${index})">×</button>
+                `;
+                galleryGrid.appendChild(photoItem);
+            });
+            
+            // Update photo count
+            document.getElementById('photoCount').textContent = `(${capturedPhotos.length}/8)`;
+            
+            // Show gallery if there are photos
+            photoGallery.style.display = capturedPhotos.length > 0 ? 'block' : 'none';
+
+            // Show and enable next button only when 8 photos are taken
+            if (capturedPhotos.length === 8) {
+                nextBtn.style.display = 'block';
+                nextBtn.disabled = false;
+                nextBtn.classList.add('active');
+            } else {
+                nextBtn.style.display = 'none';
+                nextBtn.disabled = true;
+                nextBtn.classList.remove('active');
+            }
+        }
+
+        // Event listeners
+        captureBtn.addEventListener('click', capturePhoto);
+        nextBtn.addEventListener('click', goToGrid);
+
+        // Start camera when page loads
+        window.addEventListener('load', startCamera);
+
+        // Stop camera when leaving page
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,29 @@
+<!-- 0. Preview & Confirm -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview & Confirm</title>
+    <link rel="stylesheet" href="preview.css">
+    <script src="preview.js"></script>
+</head>
+<body>
+    <div id="preview-container">
+        <h1>Preview & Confirm</h1>
+        <div class="photo-card">
+            <img id="photo-strip" src="canvas.toDataURL" class="photo-strip">
+            <div>
+                <label><input type="checkbox" id="printCheck"> Print</label>
+                <label><input type="checkbox" id="shareCheck"> Share</label>
+            </div>
+        </div>
+        <button class="download" onclick="downloadImage()">Download</button>
+        <button class="share" onclick="shareImage()">Share</button>
+        <button class="print" onclick="printImage()">Print</button>
+        <button class="next" onclick="confirmSelection()">Next</button>
+    </div>
+    
+    
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>  
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Access & Setup</title>
+    <link rel="stylesheet" href="stylecamerasetup.css">
+    <script src="camerasetup.js"></script>
+    
+    <style>
+ 
+
+      .container {
+        text-align: center;
+      }
+
+      video {
+        border: 2px solid #c0c0c0;
+        width: 2000px;
+        height: 100%;
+        scale: 200%;
+        margin-top: 100px;
+      }
+
+      .controls {
+        margin-top: 10px;
+      }
+
+      .controls input {
+        padding: 5px;
+        width: 100px;
+      }
+
+      .controls button {
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      #photos {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        border: 2px;
+
+
+      }
+
+      .photo {
+        margin: 10px;
+        position: relative;
+        border-radius: 10px;
+        align-items: c;
+      }
+
+      .photo img {
+        width: 160px;
+        height: 120px;
+        border-radius: 10px;
+      }
+
+      .photo button {
+        position: absolute;
+        bottom: 5px;
+        left: 27.5%;
+        padding: 400px;
+        cursor: pointer;
+        margin-top: 100px;
+
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+    <h1>Camera Access & Setup</h1>
+      <video id="video" autoplay width="1920px" height="1080px"></video>
+      <div class="controls p-80 mt-10">
+            <h3>Set Timer:</h3>
+            <button type="number" id="timer" class="bg-blue-500 text-white px-20 py-4 rounded-full hover:bg-blue-600 transition-colors items-center ml-10  mt-0" onclick="setTimer(3)">3s</button>
+            <button type="number" id="timer"class="bg-blue-500 text-white px-20 py-4 rounded-full hover:bg-blue-600 transition-colors items-center ml-10  mt-0" onclick="setTimer(5)">5s</button>
+            <button type="number" id="timer"class="bg-blue-500 text-white px-20 py-4 rounded-full hover:bg-blue-600 transition-colors items-center ml-10  mt-0" onclick="setTimer(10)">10s</button>
+        
+        <!-- <input type="number" id="timer" min="0" placeholder="Timer (Sec)" /> -->
+        <button class="btn " id="capture-btn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACQUlEQVR4nO2az0rcUBTGf6tmurAotFrqwnkYUYQWXVp9BqnMwtZHmNqFxULpto9QO7VuK4KIa50/rqrdFMe1U4tXLhxBhmSSnCSTm+AHHwzMnJPzzbm5OefcwAPKizFgAdgAGkATuAR6Qvv5RL6zv5kHRnEEHrAM7AL/AROT1mYHWBJfQ8djoAb8UQQfxHNgFagMS8QccJqigH52gNksBdjUf8xQQD+/SuZTxQRwNEQRRngIjKcloirpNjmxLTEkwjPZRk3OPAWea0VUclpOZsAyU23Rnx0I3vRxS7PFGkc5E1WETV/LgYBNADtRH5o1B4I1IXwTJRvnDgRqQngWduMvK5zaynYNeEF8WJu34iPudV8PcryrcGgDSYp3iuv+GNRPaErxu0zsK2z37mUmru018MRPyIJyvd7B5GD/0k/IhwIKee8npFFAId/8hLQLKKTpJ6RbQCF//YT0CijkqtRCumVZWq0CCjkp9fa7UUAh9VKXKKMJi8Y9he0vsZ1U2P4LKhotfioc2hI8KdYV1/0+yOGSwmFPxGgaq0kRoXmGLZal1X0U9i+tOhCoCeFKlHR7joxJTQDbcSaOsw4EbHx4A0wTE58cCNz0cRMFPBkcG0d4EOUGD8JTh44VJkiIaoI2OA22gClSwnhOy+xADpsyOQy9GZKIL1mfvc9kvNSami1WC09G+2cpCvgtT+xc3oDwZCrekFls3OCvpYpdTLK1pg3bG7ySMea29NMX916qsZ+PpT2tS1M0knoUD8AN3ALbxPyK/QPWHAAAAABJRU5ErkJggg==" alt="home-button"></button>
+      </div>
+      <div id="photos"></div>
+    </div>
+  
+    <script>
+      var video = document.getElementById("video");
+      var captureBtn = document.getElementById("capture-btn");
+      var photosContainer = document.getElementById("photos");
+      var timerInput = document.getElementById("timer");
+
+      // Access the camera and stream to video
+      navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        video.srcObject = stream;
+      });
+
+      // Capture photo with timer
+      captureBtn.addEventListener("click", () => {
+        var timer = timerInput.value - 1;
+        if (timer > 0) {
+          captureBtn.disabled = true;
+          var countdown = setInterval(() => {
+            captureBtn.textContent = `Capture (${timer})`;
+            if (timer <= 0) {
+              clearInterval(countdown);
+              captureBtn.textContent = "Capture";
+              captureBtn.disabled = false;
+              capturePhoto();
+            }
+            timer--;
+          }, 1000);
+        } else {
+          capturePhoto(8);
+        }
+      });
+
+      function capturePhoto() {
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Draw the current video frame to the canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        var dataURL = canvas.toDataURL("image/png");
+
+        // Create image list from captured photo
+        var photoDiv = document.createElement("div");
+        photoDiv.classList.add("photo");
+
+        var img = document.createElement("img");
+        img.src = dataURL;
+        photoDiv.appendChild(img);
+
+        // Create download image feature
+        var downloadBtn = document.createElement("button");
+        downloadBtn.textContent = "Download";
+        downloadBtn.addEventListener("click", () => {
+          var a = document.createElement("a");
+          a.href = dataURL;
+          a.download = "photo.png";
+          a.click();
+        });
+
+        // photoDiv.appendChild(downloadBtn);
+        photosContainer.appendChild(photoDiv);
+      }
+    </script>
+  </body>
+</html>
